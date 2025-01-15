@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
 
     [SerializeField] private GameObject floor;
-    [SerializeField] private float jumpForce;
+    [SerializeField] private float movementForce;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,8 +21,19 @@ public class PlayerController : MonoBehaviour
     }
 
     void FixedUpdate(){
-        if(Input.GetKeyDown(KeyCode.Space)){
-            rb.velocity = Vector2.up * jumpForce;
+        rb.AddForce(Vector2.right * movementForce);
+        if(Input.GetKeyDown(KeyCode.D)){
+            rb.AddForce(Vector2.right * movementForce);
         }
+        if(Input.GetKeyDown(KeyCode.A)){
+            rb.AddForce(Vector2.left * movementForce);
+        }
+        if(Input.GetKeyDown(KeyCode.Space)){
+            rb.AddForce(Vector2.up * movementForce);
+        }
+    }
+
+    public void Death(){
+        Debug.Log("-1 health");
     }
 }
