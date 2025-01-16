@@ -22,7 +22,6 @@ public class Enemy : MonoBehaviour
         if(collision.gameObject.layer == 6)
         {
             Debug.Log("Entered");
-            collision.gameObject.GetComponent<PlayerController>().Death();
         }
     }
 }
