@@ -45,21 +45,49 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LayerMask itemLayerMask;
 
+    [SerializeField]
+    private bool isActivePlayer;
+
+    [SerializeField]
+    private Transform playerToFollow;
+
+    [SerializeField]
+    private float followSpeed;
+
+    [SerializeField]
+    private float followXOffset;
+
+    private PowerUps powerUps;
+    private int facingDirection = 1;
+    private float holdingShotTime;
+    private bool isHoldingShoot;
+
     void Start(){
         rigidBody = GetComponent<Rigidbody2D>();
+        powerUps = GetComponent<PowerUps>();
     }
 
     private void FixedUpdate()
     {
-        rigidBody.velocity = new Vector2(horizontal * speed, rigidBody.velocity.y);
+        if(isActivePlayer){
+            if(!isHoldingShoot){
+                rigidBody.velocity = new Vector2(horizontal * speed, rigidBody.velocity.y);
+            } else{
+                rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
+            }
 
-        if(rigidBody.velocity.y < 0){
-            rigidBody.velocity = new Vector2(rigidBody.velocity.x, rigidBody.velocity.y * fallMultiplier);
+            if(rigidBody.velocity.y < 0){
+                rigidBody.velocity = new Vector2(rigidBody.velocity.x, rigidBody.velocity.y * fallMultiplier);
+            }
+        }else{
+            MoveTowardsPlayer();
         }
     }
 
     private void Update()
     {
+        if(!isActivePlayer) return;
+
         horizontal = Input.GetAxisRaw("Horizontal");
 
         if (IsGrounded())
@@ -112,10 +140,17 @@ public class PlayerController : MonoBehaviour
             speed = walkingSpeed;
         }
 
-        if(horizontal != 0 && horizontal < 0){
-            spriteRenderer.flipX = true;
-        }else if(horizontal != 0 && horizontal > 0){
-            spriteRenderer.flipX = false;
+        CheckFacingDirection();
+
+        if(Input.GetKey(KeyCode.Mouse0)){
+            isHoldingShoot = true;
+            holdingShotTime += Time.deltaTime;
+        }
+
+        if(Input.GetKeyUp(KeyCode.Mouse0)){
+            isHoldingShoot = false;
+            powerUps.ShootBullet(facingDirection, holdingShotTime);
+            holdingShotTime = 0;
         }
     }
 
@@ -124,6 +159,26 @@ public class PlayerController : MonoBehaviour
         isJumping = true;
         yield return new WaitForSeconds(0.4f);
         isJumping = false;
+    }
+
+    private void MoveTowardsPlayer()
+	{
+        horizontal = Input.GetAxisRaw("Horizontal");
+        CheckFacingDirection();
+        Vector3 followPosition = playerToFollow.position;
+        followPosition.x += followXOffset * facingDirection;
+        var step = followSpeed * Time.fixedDeltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, followPosition, step);
+	}
+
+    private void CheckFacingDirection(){
+        if(horizontal != 0 && horizontal < 0){
+            spriteRenderer.flipX = true;
+            facingDirection = -1;
+        }else if(horizontal != 0 && horizontal > 0){
+            spriteRenderer.flipX = false;
+            facingDirection = 1;
+        }
     }
 
     private bool IsGrounded()
