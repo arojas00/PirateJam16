@@ -203,6 +203,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1693061390929066823}
     m_Modifications:
     - target: {fileID: 887073571560662302, guid: 7ab0d9d19b745c1438c5ca1135294da3, type: 3}
+      propertyPath: otherPlayer
+      value: 
+      objectReference: {fileID: 3685833402123950765}
+    - target: {fileID: 887073571560662302, guid: 7ab0d9d19b745c1438c5ca1135294da3, type: 3}
       propertyPath: isActivePlayer
       value: 1
       objectReference: {fileID: 0}
@@ -276,6 +280,10 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 887073571560662302, guid: 7ab0d9d19b745c1438c5ca1135294da3, type: 3}
+      propertyPath: otherPlayer
+      value: 
+      objectReference: {fileID: 3736272950313159245}
     - target: {fileID: 887073571560662302, guid: 7ab0d9d19b745c1438c5ca1135294da3, type: 3}
       propertyPath: playerToFollow
       value: 

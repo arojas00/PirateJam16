@@ -255,9 +255,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   isActivePlayer: 0
-  playerToFollow: {fileID: 0}
-  followSpeed: 8
+  otherPlayer: {fileID: 0}
+  initialFollowSpeed: 8
   followXOffset: -0.8
+  recoilForce: 20
+  pushedByRecoil: 0
 --- !u!114 &4884665847730764477
 MonoBehaviour:
   m_ObjectHideFlags: 0

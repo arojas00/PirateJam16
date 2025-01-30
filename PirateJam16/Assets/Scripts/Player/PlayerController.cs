@@ -49,10 +49,13 @@ public class PlayerController : MonoBehaviour
     private bool isActivePlayer;
 
     [SerializeField]
-    private Transform playerToFollow;
+    private Transform otherPlayer;
+
+    private PlayerController otherPlayerController;
 
     [SerializeField]
-    private float followSpeed;
+    private float initialFollowSpeed;
+    private float currentFollowSpeed;
 
     [SerializeField]
     private float followXOffset;
@@ -62,25 +65,31 @@ public class PlayerController : MonoBehaviour
     private float holdingShotTime;
     private bool isHoldingShoot;
 
+    [SerializeField]
+    private float recoilForce;
+
+    [HideInInspector]
+    public bool pushedByRecoil;
+
     void Start(){
         rigidBody = GetComponent<Rigidbody2D>();
         powerUps = GetComponent<PowerUps>();
+        otherPlayerController = otherPlayer.GetComponent<PlayerController>();
+        currentFollowSpeed = initialFollowSpeed;
     }
 
     private void FixedUpdate()
     {
         if(isActivePlayer){
-            if(!isHoldingShoot){
+            if(!isHoldingShoot && !pushedByRecoil){
                 rigidBody.velocity = new Vector2(horizontal * speed, rigidBody.velocity.y);
-            } else{
-                rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
             }
 
             if(rigidBody.velocity.y < 0){
                 rigidBody.velocity = new Vector2(rigidBody.velocity.x, rigidBody.velocity.y * fallMultiplier);
             }
-        }else{
-            MoveTowardsPlayer();
+        } else{
+            MoveWeaponTowardsPlayer();
         }
     }
 
@@ -144,13 +153,25 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetKey(KeyCode.Mouse0)){
             isHoldingShoot = true;
+            rigidBody.velocity = new Vector2(0, rigidBody.velocity.y);
             holdingShotTime += Time.deltaTime;
         }
 
         if(Input.GetKeyUp(KeyCode.Mouse0)){
             isHoldingShoot = false;
             powerUps.ShootBullet(facingDirection, holdingShotTime);
+            if(holdingShotTime >= powerUps.chargedShotTime && !IsGrounded()){
+                pushedByRecoil = true;
+                otherPlayerController.pushedByRecoil = true;
+                rigidBody.AddForce(new Vector2(recoilForce * -facingDirection, 0), ForceMode2D.Impulse);
+                rigidBody.velocity = new Vector2(rigidBody.velocity.x, 0);
+            }
             holdingShotTime = 0;
+        }
+
+        if(pushedByRecoil && IsGrounded()){
+            otherPlayerController.pushedByRecoil = false;
+            pushedByRecoil = false;
         }
     }
 
@@ -161,13 +182,17 @@ public class PlayerController : MonoBehaviour
         isJumping = false;
     }
 
-    private void MoveTowardsPlayer()
+    private void MoveWeaponTowardsPlayer()
 	{
-        horizontal = Input.GetAxisRaw("Horizontal");
         CheckFacingDirection();
-        Vector3 followPosition = playerToFollow.position;
+        Vector3 followPosition = otherPlayer.position;
         followPosition.x += followXOffset * facingDirection;
-        var step = followSpeed * Time.fixedDeltaTime;
+        if(pushedByRecoil){
+            currentFollowSpeed = initialFollowSpeed * 3;
+        } else{
+            currentFollowSpeed = initialFollowSpeed;
+        }
+        var step = currentFollowSpeed * Time.fixedDeltaTime;
         transform.position = Vector3.MoveTowards(transform.position, followPosition, step);
 	}
 

@@ -13,8 +13,7 @@ public class PowerUps : MonoBehaviour
     [SerializeField]
     private Transform bulletSpawnTransform;
 
-    [SerializeField]
-    private float chargedShotTime;
+    public float chargedShotTime;
 
     private float spawnPositionXOffset;
     
